@@ -80,14 +80,6 @@
 
 		callback = callback || function () {};
 
-		// Generate an ID
-	    var newId = ""; 
-	    var charset = "0123456789";
-
-        for (var i = 0; i < 6; i++) {
-     		newId += charset.charAt(Math.floor(Math.random() * charset.length));
-		}
-
 		// If an ID was actually given, find the item and update each property
 		if (id) {
 			for (var i = 0; i < todos.length; i++) {
@@ -104,13 +96,51 @@
 		} else {
 
     		// Assign an ID
-			updateData.id = parseInt(newId);
-    
+			updateData.id = parseInt( this.generate_id() );
+
 
 			todos.push(updateData);
 			localStorage[this._dbName] = JSON.stringify(data);
 			callback.call(this, [updateData]);
 		}
+	};
+
+	/**
+	 * Generate a new id for a to-do item.
+	 *
+	 */
+	Store.prototype.generate_id = function () {
+		// Generate an ID
+		var newId = "";
+		var charset = "0123456789";
+
+		for (var i = 0; i < 6; i++) {
+			newId += charset.charAt(Math.floor(Math.random() * charset.length));
+		}
+
+		// If the id already exists, generate another one to avoid collision.
+		if ( this.id_exists( newId) ) {
+			return this.generate_id();
+		}
+
+		return newId;
+	};
+
+	/**
+	 * Checks if the current id exists.
+	 *
+	 * @param {number} id The id you want to check.
+	 */
+	Store.prototype.id_exists = function ( id ) {
+		var data = JSON.parse(localStorage[this._dbName]);
+		var todos = data.todos;
+		for ( var i = 0; i < todos.length; i ++ ) {
+			if ( todos[i].id == id ) {
+				return true;
+			}
+		}
+
+		return false;
 	};
 
 	/**
@@ -123,7 +153,7 @@
 		var data = JSON.parse(localStorage[this._dbName]);
 		var todos = data.todos;
 		var todoId;
-		
+
 		for (var i = 0; i < todos.length; i++) {
 			if (todos[i].id == id) {
 				todoId = todos[i].id;
