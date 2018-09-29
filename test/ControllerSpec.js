@@ -175,7 +175,7 @@ describe( 'controller', function () {
 		it( 'should toggle all todos to completed', function () {
 			// TODO: write test
 			var todo = {id: 34, title: 'my todo', completed: false};
-			setUpModel( [todo, todo2] );
+			setUpModel( [todo] );
 
 			subject.setView( '' );
 			subject.toggleAll( true );
@@ -188,7 +188,7 @@ describe( 'controller', function () {
 		it( 'should update the view', function () {
 			// TODO: write test
 			var todo = {id: 34, title: 'my todo', completed: false};
-			setUpModel( [todo, todo2] );
+			setUpModel( [todo] );
 
 			subject.setView( '' );
 			subject.toggleAll( true );
@@ -200,6 +200,26 @@ describe( 'controller', function () {
 	describe( 'new todo', function () {
 		it( 'should add a new todo to the model', function () {
 			// TODO: write test
+			setUpModel( [] );
+
+			subject.setView( '' );
+			view.trigger( 'newTodo', 'a new todo' );
+
+			view.render.calls.reset();
+			model.read.calls.reset();
+			model.read.and.callFake( function ( callback ) {
+				callback( [
+					{
+						title: 'a new todo',
+						completed: false
+					}
+				] );
+			} );
+
+			view.trigger( 'newTodo', 'a new todo' );
+
+			expect( model.read ).toHaveBeenCalled();
+			expect( view.render ).toHaveBeenCalledWith( 'clearNewTodo' );
 		} );
 
 		it( 'should add a new todo to the view', function () {
@@ -244,6 +264,13 @@ describe( 'controller', function () {
 	describe( 'element removal', function () {
 		it( 'should remove an entry from the model', function () {
 			// TODO: write test
+			var todo = {id: 42, title: 'my todo', completed: true};
+			setUpModel( [todo] );
+
+			subject.setView( '' );
+			view.trigger( 'itemRemove', {id: 42} );
+
+			expect( model.remove ).toHaveBeenCalledWith( 42, jasmine.any( Function ) );
 		} );
 
 		it( 'should remove an entry from the view', function () {
